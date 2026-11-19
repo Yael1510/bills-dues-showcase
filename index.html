@@ -157,6 +157,12 @@
   .tl b { font-family: var(--display); font-size: 1.15rem; }
   .tl span { color: var(--ink-2); }
 
+  /* Install on iPhone: steps beside the how-to video (a real sequence, so numbered) */
+  .install { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px; align-items: center; }
+  .install-steps { margin: 6px 0 0; padding-left: 1.4em; display: grid; gap: 8px; color: var(--ink-2); }
+  .install-steps li::marker { color: var(--blue); font-weight: 800; }
+  @media (max-width: 880px) { .install { grid-template-columns: minmax(0, 1fr); gap: 28px; } }
+
   /* Details */
   .detail-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
   .detail { background: var(--surface); padding: 26px; display: grid; gap: 8px; align-content: start; min-width: 0; }
@@ -328,6 +334,31 @@
     <div class="pair">
       <div class="phone"><img src="media/email.webp" alt="Reminder email: Due today, PLDT Fiber ₱1,699 and Maynilad in 3 days" loading="lazy"></div>
       <div class="phone"><img src="media/lock.webp" alt="Phone lock screen with two Bills & Dues notifications" loading="lazy"></div>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap install">
+    <div class="section-head" style="margin-bottom:0">
+      <span class="eyebrow">Install on iPhone</span>
+      <h2>On your home screen in about a minute</h2>
+      <p class="lede">Open the app in Safari, tap Share, then Add to Home Screen. Open it from the new icon, and turn on reminders in Settings.</p>
+      <ol class="install-steps">
+        <li>Open <b>bills-and-dues.web.app</b> in Safari (iOS 16.4 or newer)</li>
+        <li>Tap <b>Share</b>, then <b>Add to Home Screen</b>, then <b>Add</b></li>
+        <li>Open it from the icon and sign in</li>
+        <li>Tap your initials → <b>Enable on this device</b> → <b>Allow</b></li>
+      </ol>
+    </div>
+    <div class="player" style="margin:0">
+      <div class="player-frame">
+        <video id="install-video" controls preload="metadata" playsinline poster="media/install-iphone.webp">
+          <source src="install-iphone.mp4" type="video/mp4">
+          Your browser can't play this video.
+        </video>
+      </div>
+      <div class="player-meta"><span><b>How to install on iPhone</b> · narrated, captions built in</span><span>1:15</span></div>
     </div>
   </div>
 </section>
