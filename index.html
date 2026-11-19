@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Bills &amp; Dues: never miss a due date">
+<meta property="og:description" content="Track every bill in one place, mark it paid in one tap, and get reminded by email and push 3 days before and on the due date. Free, on any phone.">
+<meta property="og:url" content="https://yael1510.github.io/bills-dues-showcase/">
+<meta property="og:image" content="https://yael1510.github.io/bills-dues-showcase/media/og.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="720">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#2a78d6">
+<link rel="icon" type="image/png" href="media/mark.png">
+<link rel="apple-touch-icon" sizes="180x180" href="media/apple-touch-icon.png">
+<title>Bills &amp; Dues</title>
+<meta name="description" content="Track every bill in one place and get reminded by email and push before it's due.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+  /* Layout: a bill-stub hero (the app's own "due" pills), the narrated video, then the monthly cycle told
+     in order (add → remind → pay → review), the reminders up close, and the small details people notice. */
+  :root {
+    --bg: #f5f7fb;
+    --bg-2: #eaf0f8;
+    --surface: #ffffff;
+    --ink: #0e1a2e;
+    --ink-2: #3a4860;
+    --muted: #66738a;
+    --line: #dde4ef;
+    --blue: #2a78d6;
+    --blue-soft: #e3eefc;
+    --on-blue: #ffffff;
+    --overdue: #c2362b;
+    --overdue-soft: #fde7e4;
+    --today: #b4521a;
+    --today-soft: #fdeedd;
+    --soon: #8a6100;
+    --soon-soft: #fbf1cf;
+    --paid: #1f7a45;
+    --paid-soft: #dff3e6;
+    --shadow: 0 1px 2px rgba(14, 26, 46, 0.06), 0 18px 40px rgba(14, 26, 46, 0.09);
+    --display: 'Bricolage Grotesque', 'Manrope', system-ui, sans-serif;
+    --body: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --radius: 20px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c1422; --bg-2: #111c2e; --surface: #15223a; --ink: #eef3fb; --ink-2: #c6d1e3; --muted: #93a1b8; --line: #24344f;
+      --blue: #5aa2ff; --blue-soft: #16345c; --on-blue: #06121f;
+      --overdue: #ff8b80; --overdue-soft: #3d1c1c; --today: #ffad72; --today-soft: #3c2616; --soon: #f2cb5c; --soon-soft: #352c10;
+      --paid: #6fd99a; --paid-soft: #143323;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 18px 40px rgba(0,0,0,0.35); color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c1422; --bg-2: #111c2e; --surface: #15223a; --ink: #eef3fb; --ink-2: #c6d1e3; --muted: #93a1b8; --line: #24344f;
+    --blue: #5aa2ff; --blue-soft: #16345c; --on-blue: #06121f;
+    --overdue: #ff8b80; --overdue-soft: #3d1c1c; --today: #ffad72; --today-soft: #3c2616; --soon: #f2cb5c; --soon-soft: #352c10;
+    --paid: #6fd99a; --paid-soft: #143323;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 18px 40px rgba(0,0,0,0.35); color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1, h2, h3 { font-family: var(--display); line-height: 1.04; margin: 0; text-wrap: balance; color: var(--ink); }
+  h1 { font-size: clamp(2.7rem, 6.6vw, 5.2rem); font-weight: 800; letter-spacing: -0.035em; }
+  h2 { font-size: clamp(2rem, 4.2vw, 3.1rem); font-weight: 800; letter-spacing: -0.025em; }
+  h3 { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.01em; }
+  p { margin: 0; }
+  a { color: var(--blue); }
+  a:focus-visible, button:focus-visible, video:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; border-radius: 8px; }
+  img { display: block; max-width: 100%; height: auto; }
+  .lede { font-size: 1.18rem; color: var(--ink-2); max-width: 58ch; }
+  .eyebrow { font-weight: 800; font-size: 0.78rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--blue); }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* Status pills, as in the app */
+  .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; padding: 3px 11px; border-radius: 999px; white-space: nowrap; }
+  .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .p-overdue { background: var(--overdue-soft); color: var(--overdue); }
+  .p-today { background: var(--today-soft); color: var(--today); }
+  .p-soon { background: var(--soon-soft); color: var(--soon); }
+  .p-paid { background: var(--paid-soft); color: var(--paid); }
+
+  /* Header */
+  .top { padding-block: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 12px; font-family: var(--display); font-weight: 800; font-size: 1.3rem; color: var(--ink); text-decoration: none; }
+  .brand img { width: 40px; height: 40px; border-radius: 11px; }
+  .pill-link { font-weight: 800; text-decoration: none; color: var(--ink); border: 2px solid var(--line); background: var(--surface); padding: 8px 18px; border-radius: 999px; font-size: 0.95rem; white-space: nowrap; }
+  .pill-link:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* Hero */
+  .hero { padding-block: 26px 8px; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; align-items: center; }
+  .hero-text { display: grid; gap: 22px; justify-items: start; min-width: 0; }
+  .hero h1 em { font-style: normal; color: var(--blue); }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
+  .btn { background: var(--blue); color: var(--on-blue); font-weight: 800; text-decoration: none; padding: 13px 24px; border-radius: 999px; font-size: 1.04rem; display: inline-flex; gap: 8px; align-items: center; }
+  .btn:hover { filter: brightness(1.07); }
+  .btn-ghost { background: transparent; color: var(--ink); border: 2px solid var(--line); padding: 11px 22px; }
+  .btn-ghost:hover { border-color: var(--blue); color: var(--blue); filter: none; }
+  .note { color: var(--muted); font-size: 0.92rem; }
+
+  /* The stub: a short list of this month's bills, like the dashboard */
+  .stub { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; box-shadow: var(--shadow); padding: 8px 0; position: relative; }
+  .stub-head { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 22px 10px; }
+  .stub-head b { font-family: var(--display); font-size: 1.15rem; }
+  .stub-head span { color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+  .bill { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 13px 22px; border-top: 1px dashed var(--line); align-items: center; }
+  .bill strong { font-weight: 800; font-size: 1.02rem; }
+  .bill .amt { font-family: var(--display); font-weight: 700; font-size: 1.12rem; text-align: right; }
+  .bill small { color: var(--muted); font-size: 0.84rem; font-weight: 600; }
+  .bill .row2 { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .stub-foot { display: flex; justify-content: space-between; padding: 14px 22px 10px; border-top: 2px solid var(--ink); margin-top: 4px; font-weight: 800; }
+  .stub-foot .num { font-family: var(--display); font-size: 1.2rem; }
+  .stamp {
+    position: absolute; right: -10px; top: -16px; transform: rotate(6deg); background: var(--blue); color: var(--on-blue);
+    font-family: var(--display); font-weight: 800; font-size: 0.95rem; padding: 7px 15px; border-radius: 12px; box-shadow: var(--shadow);
+  }
+
+  /* Video */
+  .player { margin-block: 56px 8px; display: grid; gap: 12px; }
+  .player-frame { border-radius: 26px; overflow: hidden; background: #0d1526; box-shadow: var(--shadow); border: 1px solid var(--line); aspect-ratio: 16 / 9; max-width: 100%; }
+  .player video { width: 100%; height: 100%; display: block; background: #0d1526; }
+  .player-meta { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: 0.92rem; }
+  .player-meta b { color: var(--ink); }
+
+  section { padding-block: 76px; }
+  .section-head { display: grid; gap: 14px; margin-bottom: 40px; max-width: 760px; }
+
+  /* The monthly cycle: a real sequence, so it is numbered */
+  .cycle { display: grid; gap: 70px; counter-reset: step; }
+  .step { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 56px; align-items: center; }
+  .step:nth-child(even) .step-text { order: 2; }
+  .step-text { display: grid; gap: 14px; min-width: 0; }
+  .step-no { counter-increment: step; display: flex; align-items: center; gap: 12px; font-weight: 800; color: var(--blue); font-size: 0.95rem; letter-spacing: 0.02em; }
+  .step-no::before { content: counter(step); width: 40px; height: 40px; border-radius: 12px; background: var(--blue); color: var(--on-blue); display: grid; place-items: center; font-family: var(--display); font-size: 1.2rem; }
+  .step-text p { color: var(--ink-2); }
+  .ticks { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 7px; }
+  .ticks li { display: grid; grid-template-columns: 20px 1fr; gap: 10px; color: var(--ink-2); }
+  .ticks li::before { content: ""; width: 16px; height: 16px; margin-top: 5px; border-radius: 5px; background: var(--blue) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 13px no-repeat; }
+  .pair { display: flex; gap: 22px; justify-content: center; align-items: flex-start; }
+  .phone { width: 240px; max-width: 44%; border-radius: 34px; background: #0b1220; padding: 9px; box-shadow: var(--shadow); flex: none; }
+  .phone img { border-radius: 26px; aspect-ratio: 390 / 844; object-fit: cover; object-position: top; width: 100%; }
+  .pair .phone:nth-child(2) { margin-top: 44px; }
+
+  /* Reminders */
+  .reminders { background: var(--bg-2); }
+  .rem-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 56px; align-items: center; }
+  .timeline { display: grid; gap: 0; margin-top: 8px; border-left: 3px solid var(--line); }
+  .tl { position: relative; padding: 4px 0 22px 26px; display: grid; gap: 4px; }
+  .tl::before { content: ""; position: absolute; left: -10px; top: 8px; width: 17px; height: 17px; border-radius: 50%; background: var(--surface); border: 3px solid var(--blue); }
+  .tl:last-child { padding-bottom: 4px; }
+  .tl b { font-family: var(--display); font-size: 1.15rem; }
+  .tl span { color: var(--ink-2); }
+
+  /* Details */
+  .detail-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .detail { background: var(--surface); padding: 26px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+  .detail h3 { font-size: 1.15rem; }
+  .detail p { color: var(--ink-2); font-size: 0.97rem; }
+  .cats { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .cats span { font-size: 0.8rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); }
+  .meter { height: 10px; border-radius: 6px; background: var(--bg-2); overflow: hidden; margin-top: 6px; }
+  .meter i { display: block; height: 100%; width: 36%; background: var(--paid); border-radius: 6px; }
+  .meter-cap { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--muted); font-weight: 600; }
+
+  /* Closing */
+  .cta { background: var(--blue); color: var(--on-blue); border-radius: 30px; padding: clamp(30px, 6vw, 64px); display: grid; gap: 18px; justify-items: start; }
+  .cta h2 { color: var(--on-blue); max-width: 20ch; }
+  .cta p { max-width: 58ch; font-size: 1.1rem; }
+  .cta .btn { background: var(--on-blue); color: var(--blue); }
+  .cta .btn-ghost { background: transparent; color: var(--on-blue); border-color: color-mix(in srgb, var(--on-blue) 55%, transparent); }
+  .cta .btn-ghost:hover { border-color: var(--on-blue); color: var(--on-blue); }
+  .cta-more { margin-top: 8px; padding-top: 18px; border-top: 1px solid color-mix(in srgb, var(--on-blue) 30%, transparent); font-size: 1.05rem; }
+  footer { padding-block: 40px 56px; color: var(--muted); font-size: 0.9rem; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  @media (max-width: 880px) {
+    .hero, .step, .rem-grid { grid-template-columns: minmax(0, 1fr); }
+    .step:nth-child(even) .step-text { order: 0; }
+    .step { gap: 26px; }
+    .detail-grid { grid-template-columns: minmax(0, 1fr); }
+    section { padding-block: 54px; }
+    .stamp { right: 8px; }
+  }
+  @media (max-width: 520px) {
+    .top .pill-link { display: none; }
+    .pair { gap: 12px; }
+    .pair .phone:nth-child(2) { margin-top: 28px; }
+  }
+</style>
+</head>
+<body style="margin:0">
+
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#top" id="top"><img src="media/mark.png" alt="">Bills &amp; Dues</a>
+    <a class="pill-link" href="#watch">Watch the tour</a>
+  </header>
+
+  <div class="hero">
+    <div class="hero-text">
+      <span class="eyebrow">Bill tracker for Filipino households</span>
+      <h1>Every bill, paid <em>before</em> it's due.</h1>
+      <p class="lede">Meralco, Maynilad, the internet, the credit card, the rent. Bills &amp; Dues keeps them all in one list, shows what needs paying this week, and reminds you by email and push notification 3 days before and on the due date.</p>
+      <div class="actions">
+        <a class="btn" href="https://bills-and-dues.web.app" target="_blank" rel="noopener">Open the app →</a>
+        <a class="btn btn-ghost" href="#watch">Watch the tour</a>
+      </div>
+      <p class="note">Free to use. Works in your phone's browser; add it to your home screen like an app.</p>
+    </div>
+
+    <div class="stub" aria-label="Example: bills on the dashboard">
+      <span class="stamp">Reminder sent 8:00 AM</span>
+      <div class="stub-head"><b>Needs attention</b><span>Example bills</span></div>
+      <div class="bill">
+        <div><strong>Meralco</strong><div class="row2"><span class="pill p-overdue">2 days overdue</span><small>Nov 17</small></div></div>
+        <span class="amt num">₱3,850.00</span>
+      </div>
+      <div class="bill">
+        <div><strong>PLDT Fiber</strong><div class="row2"><span class="pill p-today">Due today</span><small>Nov 19</small></div></div>
+        <span class="amt num">₱1,699.00</span>
+      </div>
+      <div class="bill">
+        <div><strong>Maynilad</strong><div class="row2"><span class="pill p-soon">Due in 2 days</span><small>Nov 21</small></div></div>
+        <span class="amt num">₱620.00</span>
+      </div>
+      <div class="bill">
+        <div><strong>BPI Credit Card</strong><div class="row2"><span class="pill p-paid">Paid</span><small>Bal. ₱38,500.00 left</small></div></div>
+        <span class="amt num">₱5,000.00</span>
+      </div>
+      <div class="stub-foot"><span>Left to pay this month</span><span class="num">₱11,718.00</span></div>
+    </div>
+  </div>
+
+  <div class="player" id="watch">
+    <div class="player-frame">
+      <video id="tour-video" controls preload="metadata" playsinline poster="media/poster.webp">
+        <source src="bills-dues-walkthrough.mp4" type="video/mp4">
+        Your browser can't play this video.
+      </video>
+    </div>
+    <div class="player-meta"><span><b>Full walkthrough</b> · narrated, captions built in</span><span id="tour-length">2:23</span></div>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">How a month goes</span>
+      <h2>Add it once. Get reminded. Tap Pay.</h2>
+      <p class="lede">Recurring bills roll over to the next due date by themselves, so after the first setup you only open the app when something is due.</p>
+    </div>
+
+    <div class="cycle">
+      <div class="step">
+        <div class="step-text">
+          <span class="step-no">Add your bills</span>
+          <h3>Name, amount, due date, how often it repeats</h3>
+          <p>Pick a category and choose one-time, monthly, quarterly or yearly. For loans and credit cards, also enter the loan amount and what's left, and the app tracks the balance for you.</p>
+          <ul class="ticks">
+            <li>Utilities, loans &amp; cards, subscriptions, rent, dues &amp; fees</li>
+            <li>Notes for the account number or where to pay</li>
+          </ul>
+        </div>
+        <div class="pair">
+          <div class="phone"><img src="media/add_filled.webp" alt="Add bill form filled in for Converge Fiber, ₱1,500 monthly" loading="lazy"></div>
+          <div class="phone"><img src="media/add_loan.webp" alt="Add bill form for a loan with loan amount and remaining balance" loading="lazy"></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-text">
+          <span class="step-no">See what's due</span>
+          <h3>The dashboard answers "what do I pay this week?"</h3>
+          <p>Four numbers up top: overdue, due in the next 7 days, left to pay this month and paid this month. Below, every bill that's overdue or due within 3 days, color coded, then everything coming up in the next 30 days.</p>
+          <div class="cats"><span class="pill p-overdue">Overdue</span><span class="pill p-today">Due today</span><span class="pill p-soon">Due soon</span></div>
+        </div>
+        <div class="pair">
+          <div class="phone"><img src="media/dash_top.webp" alt="Dashboard with overdue, due next 7 days, left to pay and paid this month" loading="lazy"></div>
+          <div class="phone"><img src="media/dash_dark.webp" alt="The same dashboard in dark mode" loading="lazy"></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-text">
+          <span class="step-no">Mark it paid</span>
+          <h3>One tap, and next month is already set</h3>
+          <p>Tap Pay, check the amount and date, and confirm. The payment goes into your history, a recurring bill moves to its next due date, and a loan's balance goes down.</p>
+        </div>
+        <div class="pair">
+          <div class="phone"><img src="media/pay_meralco.webp" alt="Pay Meralco dialog showing next due date Dec 17" loading="lazy"></div>
+          <div class="phone"><img src="media/dash_paid.webp" alt="Dashboard after paying, with nothing overdue" loading="lazy"></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-text">
+          <span class="step-no">Look back</span>
+          <h3>History and reports, without a spreadsheet</h3>
+          <p>Every payment, grouped by month, with late ones flagged. Reports show what you paid each month, what each category costs you, and when each loan will be paid off. Export bills or payments to CSV for Excel anytime.</p>
+        </div>
+        <div class="pair">
+          <div class="phone"><img src="media/history.webp" alt="Payment history grouped by month with a Late flag" loading="lazy"></div>
+          <div class="phone"><img src="media/reports_chart.webp" alt="Bar chart of amount paid per month" loading="lazy"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="reminders">
+  <div class="wrap rem-grid">
+    <div class="section-head" style="margin-bottom:0">
+      <span class="eyebrow">Reminders</span>
+      <h2>It tells you, so you don't have to remember.</h2>
+      <p class="lede">A daily check runs every morning at 8:00, Manila time, even when the app is closed.</p>
+      <div class="timeline">
+        <div class="tl"><b>3 days before</b><span>One email listing what's coming up, plus a push notification for each bill.</span></div>
+        <div class="tl"><b>On the due date</b><span>"Due today" by email and push, so it gets paid before the late fee.</span></div>
+        <div class="tl"><b>Your choice</b><span>Turn email or push off anytime in Settings. Emails only go to verified addresses.</span></div>
+      </div>
+    </div>
+    <div class="pair">
+      <div class="phone"><img src="media/email.webp" alt="Reminder email: Due today, PLDT Fiber ₱1,699 and Maynilad in 3 days" loading="lazy"></div>
+      <div class="phone"><img src="media/lock.webp" alt="Phone lock screen with two Bills & Dues notifications" loading="lazy"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">The small things</span>
+      <h2>Made for how bills work here</h2>
+    </div>
+    <div class="detail-grid">
+      <div class="detail">
+        <h3>Everything in pesos</h3>
+        <p>Amounts in ₱, with the monthly cost of each category. Quarterly and yearly bills are spread per month, so the total is honest.</p>
+      </div>
+      <div class="detail">
+        <h3>Loans and credit cards</h3>
+        <p>See the balance left, the months to go, and the payoff date.</p>
+        <div class="meter" role="img" aria-label="36% paid"><i></i></div>
+        <div class="meter-cap num"><span>36% paid of ₱60,000</span><span>~8 months left</span></div>
+      </div>
+      <div class="detail">
+        <h3>Four kinds of bills</h3>
+        <div class="cats"><span>Utilities</span><span>Loans &amp; cards</span><span>Subscriptions</span><span>Rent, dues &amp; fees</span></div>
+        <p>From Meralco to HOA dues to tuition and insurance.</p>
+      </div>
+      <div class="detail">
+        <h3>An account for each person</h3>
+        <p>Everyone in the household signs up with email or Google and sees only their own bills.</p>
+      </div>
+      <div class="detail">
+        <h3>On your home screen</h3>
+        <p>No app store. Add it from the browser and it opens like an app, with a badge for bills overdue or due today.</p>
+      </div>
+      <div class="detail">
+        <h3>Light and dark</h3>
+        <p>Follows your phone's setting. Syncs between your phone and computer.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="cta">
+      <h2>Want an app like this for your business?</h2>
+      <p>Bills &amp; Dues was built from a short interview: what to track, how to be reminded, and what reports matter. The same goes for a tracker, booking system or dashboard for your own work.</p>
+      <div class="actions">
+        <a class="btn" href="https://bills-and-dues.web.app" target="_blank" rel="noopener">Try Bills &amp; Dues</a>
+        <a class="btn btn-ghost" href="#watch">Watch the tour again</a>
+      </div>
+      <p class="cta-more">In need of an app for your business, or thinking about one? <strong>Just DM me and let's discuss it.</strong></p>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <span>Bills &amp; Dues · bills-and-dues.web.app</span>
+    <span>Screens show example bills.</span>
+  </footer>
+</div>
+
+</body>
+</html>
