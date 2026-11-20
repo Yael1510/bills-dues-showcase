@@ -157,6 +157,17 @@
   .tl b { font-family: var(--display); font-size: 1.15rem; }
   .tl span { color: var(--ink-2); }
 
+  /* What's new: the vertical short beside the list of updates */
+  .news { background: var(--bg-2); }
+  .news-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 56px; align-items: center; }
+  .news-list { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 14px; counter-reset: news; }
+  .news-list li { counter-increment: news; display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: start; color: var(--ink-2); }
+  .news-list li::before { content: counter(news); width: 40px; height: 40px; border-radius: 12px; background: var(--blue); color: var(--on-blue); display: grid; place-items: center; font-family: var(--display); font-weight: 800; font-size: 1.15rem; }
+  .news-list b { color: var(--ink); display: block; }
+  .player.tall { margin: 0; justify-self: center; width: min(100%, 340px); }
+  .player.tall .player-frame { aspect-ratio: 9 / 16; }
+  @media (max-width: 880px) { .news-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; } }
+
   /* Install on iPhone: steps beside the how-to video (a real sequence, so numbered) */
   .install { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px; align-items: center; }
   .install-steps { margin: 6px 0 0; padding-left: 1.4em; display: grid; gap: 8px; color: var(--ink-2); }
@@ -253,6 +264,31 @@
     <div class="player-meta"><span><b>Full walkthrough</b> · narrated, captions built in</span><span id="tour-length">4:06</span></div>
   </div>
 </div>
+
+<section class="news" id="whats-new">
+  <div class="wrap news-grid">
+    <div class="section-head" style="margin-bottom:0">
+      <span class="eyebrow">What's new</span>
+      <h2>A fresh new look, and a few new tricks</h2>
+      <p class="lede">The latest update in under a minute.</p>
+      <ol class="news-list">
+        <li><span><b>A fresh new look</b>The dashboard shows what's overdue, due this week and left to pay, at a glance.</span></li>
+        <li><span><b>Tap to see the bills</b>Tap any tile to see the bills behind the number, and pay right from the list.</span></li>
+        <li><span><b>Your monthly costs</b>A new chart on My Bills. Tap a category to show only those bills.</span></li>
+        <li><span><b>Dark mode</b>Pick light, dark, or follow your phone.</span></li>
+      </ol>
+    </div>
+    <div class="player tall">
+      <div class="player-frame">
+        <video id="news-video" controls preload="metadata" playsinline poster="media/whats-new-cover.webp">
+          <source src="whats-new-short.mp4" type="video/mp4">
+          Your browser can't play this video.
+        </video>
+      </div>
+      <div class="player-meta"><span><b>What's new</b> · narrated, captions built in</span><span>0:51</span></div>
+    </div>
+  </div>
+</section>
 
 <section>
   <div class="wrap">
